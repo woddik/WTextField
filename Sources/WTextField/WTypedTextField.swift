@@ -70,7 +70,6 @@ private extension WTypedTextField {
         case .enterPassword:
             textContentType = .password
             isSecureTextEntry = true
-            validator = PasswordValidator()
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
             actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
@@ -79,7 +78,6 @@ private extension WTypedTextField {
                 textContentType = .newPassword
             }
             isSecureTextEntry = true
-            validator = PasswordValidator()
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
             actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
