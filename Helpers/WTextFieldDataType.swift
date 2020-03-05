@@ -9,7 +9,7 @@ import Foundation
 
 public enum WTextFieldDataType {
     case none
-    case phoneNumber
+    case phoneNumber(config: WTypedTextField.WTextFieldPhoneConfigurator = .ukrainePhone)
     case email
     case login
     case enterPassword
@@ -20,7 +20,7 @@ public enum WTextFieldDataType {
     case expirationDate
     case cvv
     case creditCardName
-    case date(config: WTypedTextField.DateConfigurator)
+    case date(config: WTypedTextField.WTextFieldDateConfigurator)
     case numberOnly
     case decimalOnly
     case upperCase
@@ -31,7 +31,7 @@ public enum WTextFieldDataType {
     
     var defaultFormatter: FormaterProtocol? {
         switch self {
-        case .phoneNumber: return PhoneNumberFormater()
+        case .phoneNumber(let config): return PhoneNumberFormater(configure: config)
         case .topUpCost: return DecimalFormatter(maxNumbersAfterPoint: 2, maxValue: nil)
         case .transferByCardCost: return DecimalFormatter(maxNumbersAfterPoint: 2, maxValue: nil)
         case .card: return CardNumberFormatter()
@@ -51,7 +51,7 @@ public enum WTextFieldDataType {
     
     var defaultValidator: ValidatorProtocol? {
         switch self {
-        case .phoneNumber: return PhoneValidator()
+        case .phoneNumber(let config): return PhoneValidator(configure: config)
         case .email: return EmailValidator()
         case .login: return LoginValidator()
         case .enterPassword, .newPassword: return PasswordValidator()

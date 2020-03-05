@@ -9,14 +9,23 @@ import UIKit
 
 struct PhoneNumberFormater: FormaterProtocol {
     
-    // MARK: - Constants
+    private let config: WTypedTextField.WTextFieldPhoneConfigurator
     
-    private struct Constants {
-        static let maxLengthWithPlus = 13
-        static let countryCode = "380"
-        static var plusedCountryCode: String {
-            return "+" + countryCode
+    init(configure: WTypedTextField.WTextFieldPhoneConfigurator) {
+        config = configure
+    }
+    
+    func processTextFieldText(_ textField: UITextField,
+                              shouldChangeCharactersIn range: NSRange,
+                              replacementString string: String,
+                              validator: ValidatorProtocol?) {
+        
+        if let validator = validator, validator.validate(string) == nil {
+            textField.text = format(string: string)
+            
+            return
         }
+        defaultProcessTextFieldText(textField, shouldChangeCharactersIn: range, replacementString: string)
     }
     
     func format(string: String?) -> String? {
@@ -31,16 +40,39 @@ struct PhoneNumberFormater: FormaterProtocol {
         return formatPhoneNumber(preparedString)
     }
     
+    func deleteOneCharIn(text: String,
+                         textField: UITextField,
+                         shouldChangeCharactersIn range: NSRange,
+                         replacementString string: String) {
+        var from = range.location
+        let toIndx = from + range.length
+
+        if text.substring(fromIndex: from, toIndex: toIndx)?.containsSpecialSymbols == true && from > 0 {
+            from -= 1
+        }
+        let formated = format(string: text.cut(fromIndex: from, toIndex: toIndx) ?? "")
+        let isCharRemoved = textField.text != formated
+        let position = isCharRemoved ? textField.beginningOfDocument : textField.endOfDocument
+
+        textField.text = formated
+        
+        guard let newPosition = textField.position(from: position, offset: from) else {
+            return
+        }
+        
+        textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
+    }
+    
     private func formatPhoneNumber(_ phoneNumber: String) -> String {
         
-        if phoneNumber.count < Constants.plusedCountryCode.count {
-            return Constants.plusedCountryCode
+        if phoneNumber.count < config.plusedCountryCode.count {
+            return config.plusedCountryCode
         }
         
         var simpleNumbers = phoneNumber.stringDigitsOnly(exceptSymbolsFromString: "+")
         
-        if simpleNumbers.count > Constants.maxLengthWithPlus {
-            let maxIndex = simpleNumbers.index(simpleNumbers.startIndex, offsetBy: Constants.maxLengthWithPlus)
+        if simpleNumbers.count > config.maxLengthWithPlus {
+            let maxIndex = simpleNumbers.index(simpleNumbers.startIndex, offsetBy: config.maxLengthWithPlus)
             simpleNumbers = String(simpleNumbers[..<maxIndex])
         }
         
@@ -72,7 +104,7 @@ struct PhoneNumberFormater: FormaterProtocol {
                                                       range: nil)
         }
         
-        return Constants.plusedCountryCode
+        return config.plusedCountryCode
         
     }
     
@@ -81,20 +113,20 @@ struct PhoneNumberFormater: FormaterProtocol {
             return nil
         }
         
-        return Constants.plusedCountryCode + withoutCountryCode
+        return config.plusedCountryCode + withoutCountryCode
     }
     
     func removeCountryCode(_ phoneNumber: String) -> String? {
         var withoutFormat = phoneNumber.stringDigitsOnly()
         
-        if let rangeOfCountryCode = withoutFormat.range(of: "38") {
+        if let rangeOfCountryCode = withoutFormat.range(of: config.countryCode.dropLast()) {
             if rangeOfCountryCode.lowerBound == withoutFormat.startIndex &&
                 rangeOfCountryCode.lowerBound != rangeOfCountryCode.upperBound {
                 withoutFormat = String(withoutFormat[rangeOfCountryCode.upperBound..<withoutFormat.endIndex])
             }
         }
         
-        if let rangeOfZero = withoutFormat.range(of: "0") {
+        if let rangeOfZero = withoutFormat.range(of: config.countryCode.notNilLast) {
             if rangeOfZero.lowerBound == withoutFormat.startIndex && !rangeOfZero.isEmpty {
                 withoutFormat = String(withoutFormat[rangeOfZero.upperBound..<withoutFormat.endIndex])
             }
