@@ -3,15 +3,15 @@ import UIKit
 
 open class WBaseTextField: UITextField {
     
-    typealias EditEventCallback = ((_ sender: WBaseTextField, _ event: BindEvent) -> Void)
-    typealias ActionEventCallback = ((_ sender: WBaseTextField, _ event: BindEventAction) -> Void)
+    public typealias EditEventCallback = ((_ sender: WBaseTextField, _ event: BindEvent) -> Void)
+    public typealias ActionEventCallback = ((_ sender: WBaseTextField, _ event: BindEventAction) -> Void)
     
-    enum BindEvent: Equatable {
+    public enum BindEvent: Equatable {
         case valueChanged
         case beginOrEndEditting(isBegin: Bool)
     }
     
-    enum BindEventAction: Equatable {
+    public enum BindEventAction: Equatable {
         case `return`
         case clear
     }
@@ -21,21 +21,27 @@ open class WBaseTextField: UITextField {
     override public init(frame: CGRect) {
         super.init(frame: frame)
         setupDefaults()
+        configureUI()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupDefaults()
+        configureUI()
     }
     
     // MARK: - Private properties
     
-    private let padding = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-
     private var bind: EditEventCallback?
     private var bindActions: ActionEventCallback?
 
     private weak var customDelegate: UITextFieldDelegate?
+    
+    // MARK: - Public properties
+    
+    open var padding: UIEdgeInsets {
+        return .zero
+    }
     
     // MARK: - Life cycle
     
@@ -62,23 +68,26 @@ open class WBaseTextField: UITextField {
     
     // MARK: - Public methods
     
+    public func configureUI() { }
+
     /// set callback action for observe PMCTextField has change text value
     @discardableResult
-    func bind(callback: @escaping EditEventCallback) -> WBaseTextField {
+    public func bind(callback: @escaping EditEventCallback) -> WBaseTextField {
         bind = callback
         return self
     }
     
     /// set callback action for observe PMCTextField has change text value
     @discardableResult
-    func bindAction(callback: @escaping ActionEventCallback) -> WBaseTextField {
+    public func bindAction(callback: @escaping ActionEventCallback) -> WBaseTextField {
         bindActions = callback
         return self
     }
     
-    func setPlaceholderColor(_ color: UIColor) {
-        let placeholder = self.placeholder ?? ""
-        attributedPlaceholder = NSAttributedString(string: placeholder, attributes:[.foregroundColor: color])
+    public func setPlaceholderColor(_ color: UIColor) {
+        let placeholder = self.placeholder ?? attributedPlaceholder?.string ?? ""
+            
+        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: color])
     }
 }
 
