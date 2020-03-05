@@ -37,7 +37,7 @@ struct PhoneValidator: ValidatorProtocol {
         regex = nil
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         if let config = config {
             guard let phoneBody = removeCountryCode(from: object, countryCode: config.countryCode) else {
                 return Validation.validationPhoneNumberIncorrect.asError

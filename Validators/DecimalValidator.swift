@@ -13,7 +13,7 @@ public struct DecimalValidator: ValidatorProtocol {
         case validationStringShouldContainOnlyDigits
     }
     
-    public func validate(_ object: String) -> WTextFieldErorr? {
+    public func validate(_ object: String) -> WTextFieldError? {
         if !object.containsDigitsOrSymbols {
             return Validation.validationStringShouldContainOnlyDigits.asError
         }

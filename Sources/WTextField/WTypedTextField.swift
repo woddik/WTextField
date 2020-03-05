@@ -17,7 +17,7 @@ public protocol FormaterProtocol {
 
 public protocol ValidatorProtocol {
     
-    func validate(_ object: String) -> WTextFieldErorr?
+    func validate(_ object: String) -> WTextFieldError?
     
 }
 

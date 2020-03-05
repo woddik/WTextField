@@ -65,19 +65,19 @@ extension EnumLocalized {
 
 protocol ErrorEnumLocalized: Error, EnumLocalized {
     
-    var asError: WTextFieldErorr { get }
+    var asError: WTextFieldError { get }
     
-    func asErrorWith(code: Int) -> WTextFieldErorr
+    func asErrorWith(code: Int) -> WTextFieldError
 }
 
 extension ErrorEnumLocalized {
     
-    var asError: WTextFieldErorr {
+    var asError: WTextFieldError {
         return asErrorWith(code: 0)
     }
     
-    func asErrorWith(code: Int) -> WTextFieldErorr {
-        return WTextFieldErorr(value: self, code: code)
+    func asErrorWith(code: Int) -> WTextFieldError {
+        return WTextFieldError(value: self, code: code)
     }
     
 }

@@ -13,7 +13,7 @@ public struct NumberValidator: ValidatorProtocol {
         case validationStringShouldContainOnlyDigits
     }
     
-    public func validate(_ object: String) -> WTextFieldErorr? {
+    public func validate(_ object: String) -> WTextFieldError? {
         if object.containsLetters || object.containsSpecialSymbols {
             return Validation.validationStringShouldContainOnlyDigits.asError
         }

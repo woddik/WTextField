@@ -19,7 +19,7 @@ struct PinCodeValidator: ValidatorProtocol {
         self.pinCodeCount = pinCodeCount
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         let withoutFormat = object.stringDigitsOnly()
     
         if withoutFormat.count != pinCodeCount {

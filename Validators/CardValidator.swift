@@ -37,7 +37,7 @@ struct CardValidator: ValidatorProtocol {
 
     let errorMessage = NSLocalizedString("validate_number_incorrect", comment: "")
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         let cardWithoutFromat = object.stringDigitsOnly()
         
         if cardWithoutFromat.count != Constants.cardNumbersCount {
