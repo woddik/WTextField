@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension String {
+public extension String {
     
     static var space: String {
         return " "
