@@ -8,21 +8,16 @@
 import Foundation
 
 struct PhoneValidator: ValidatorProtocol {
-    
-    struct Configurator {
-        let countryCode: String
-        let phoneBodyDigitsCount: Int
-    }
-    
+
     enum Validation: ErrorEnumLocalized {
         case validationPhoneNumberIncorrect
         case missingValidationData
     }
     
-    private let config: Configurator?
+    private let config: WTypedTextField.WTextFieldPhoneConfigurator?
     private let regex: String?
     
-    init(configure: Configurator) {
+    init(configure: WTypedTextField.WTextFieldPhoneConfigurator) {
         config = configure
         regex = nil
     }
@@ -37,13 +32,13 @@ struct PhoneValidator: ValidatorProtocol {
         regex = nil
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         if let config = config {
             guard let phoneBody = removeCountryCode(from: object, countryCode: config.countryCode) else {
                 return Validation.validationPhoneNumberIncorrect.asError
             }
     
-            if phoneBody.count != config.phoneBodyDigitsCount {
+            if phoneBody.count != config.maxLengthWithPlus {
                 return Validation.validationPhoneNumberIncorrect.asError
             }
             return nil

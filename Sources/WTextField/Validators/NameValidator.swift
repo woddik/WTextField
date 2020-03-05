@@ -19,12 +19,12 @@ struct NameValidator: ValidatorProtocol {
         self.minimumCount = minimumCount
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         let letters = object.components(separatedBy: CharacterSet.decimalDigits).joined()
                 
         if letters.count < minimumCount {
             let errorText = Validation.validationNameTooShort.key + .space + "\(minimumCount)"
-            return WTextFieldErorr(message: errorText)
+            return WTextFieldError(message: errorText)
         }
         
         return nil

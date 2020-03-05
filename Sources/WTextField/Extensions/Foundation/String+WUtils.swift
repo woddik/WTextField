@@ -13,6 +13,13 @@ extension String {
         return " "
     }
     
+    var notNilLast: String {
+        guard let last = last else {
+            return ""
+        }
+        return String(last)
+    }
+    
     var containsDigits: Bool {
         return rangeOfCharacter(from: .decimalDigits) != nil
     }
@@ -127,4 +134,15 @@ extension NSAttributedString {
         mutStr.setAttributes([attribute: value], range: NSMakeRange(0, length))
         return mutStr
     }
+}
+
+extension Optional where Wrapped == String {
+    
+    var isEmptyOrNil: Bool {
+        guard let self = self else {
+            return true
+        }
+        return self.isEmpty
+    }
+    
 }

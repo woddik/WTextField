@@ -20,7 +20,7 @@ struct EmailValidator: ValidatorProtocol {
         case validationEmailIncorrect
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         if !Constants.emailPredicate.evaluate(with: object) {
             return Validation.validationEmailIncorrect.asError
         }

@@ -21,7 +21,7 @@ struct CostValidator: ValidatorProtocol {
         self.minimumCost = minimumCost
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         if object.isEmpty {
             return Validation.validationEmptyField.asError
         }
@@ -32,7 +32,7 @@ struct CostValidator: ValidatorProtocol {
         
         if costAmount < Double(minimumCost) {
             let errorText = Validation.validationSumShouldBeGreaterThen.key + .space + "\(minimumCost)"
-            return WTextFieldErorr(message: errorText)
+            return WTextFieldError(message: errorText)
         }
         
         return nil

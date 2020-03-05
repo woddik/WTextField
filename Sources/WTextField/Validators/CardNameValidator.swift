@@ -20,16 +20,16 @@ struct CardNameValidator: ValidatorProtocol {
         case validationCardNameTooLongInfo
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
 
         if object.count > maximumCount {
             let errorText = Validation.validationCardNameTooLongInfo.key + .space + "\(maximumCount)"
-            return WTextFieldErorr(message: errorText)
+            return WTextFieldError(message: errorText)
         }
         
         if object.isEmpty {
             let errorText = Validation.validationCardNameTooLongInfo.key + .space + "\(minimumCount)"
-            return WTextFieldErorr(message: errorText)
+            return WTextFieldError(message: errorText)
         }
         
         return nil

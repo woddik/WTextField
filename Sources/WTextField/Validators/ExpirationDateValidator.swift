@@ -27,7 +27,7 @@ struct ExpirationDateValidator: ValidatorProtocol {
     
     // MARK: - Public methods
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         var componentsToAdd = DateComponents()
         componentsToAdd.month = 1
         

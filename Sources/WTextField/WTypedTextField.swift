@@ -7,20 +7,6 @@
 
 import UIKit
 
-public protocol FormaterProtocol {
-    
-    func format(string: String?) -> String?
-    
-//    func processTextFieldText(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
-//                              replacementString string: String)
-}
-
-public protocol ValidatorProtocol {
-    
-    func validate(_ object: String) -> WTextFieldErorr?
-    
-}
-
 open class WTypedTextField: WStyledTextField {
     
     private(set) var defaultFormatterEnable: Bool = true
@@ -37,6 +23,8 @@ open class WTypedTextField: WStyledTextField {
     private var validator: ValidatorProtocol?
     private var formatter: FormaterProtocol?
     
+    private var bind: EditEventCallback?
+
     /// Type of data in TextField that will be handled by validator and formatter
     open var dataType: WTextFieldDataType = .none {
         didSet {
@@ -48,16 +36,28 @@ open class WTypedTextField: WStyledTextField {
     
     override public func configureUI() {
         super.configureUI()
-        if defaultFormatterEnable {
-            formatter = dataType.defaultFormatter
-        }
-        if defaultValidatorEnable {
-            validator = dataType.defaultValidator
-        }
+
     }
     
+    public override func bind(callback: @escaping WBaseTextField.EditEventCallback) -> WBaseTextField {
+        bind = callback
+        return super.bind(callback: callback)
+    }
+    
+    public override func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool {
+        if let formatter = formatter {
+            formatter.processTextFieldText(textField,
+                                           shouldChangeCharactersIn: range,
+                                           replacementString: string,
+                                           validator: validator)
+            bind?(self, WBaseTextField.BindEvent.valueChanged)
+            return false
+        }
+        return super.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
+    }
     // MARK: - Public methods
-
     
 }
 
@@ -66,11 +66,12 @@ open class WTypedTextField: WStyledTextField {
 private extension WTypedTextField {
     
     func updateTypeSettings() {
+        updateFormatterAndValidator()
+        
         switch dataType {
         case .enterPassword:
             textContentType = .password
             isSecureTextEntry = true
-            validator = PasswordValidator()
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
             actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
@@ -79,7 +80,6 @@ private extension WTypedTextField {
                 textContentType = .newPassword
             }
             isSecureTextEntry = true
-            validator = PasswordValidator()
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
             actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
@@ -87,7 +87,10 @@ private extension WTypedTextField {
             keyboardType = .emailAddress
             spellCheckingType = .no
             autocorrectionType = .no
-        case .phoneNumber:
+        case .phoneNumber(let config):
+            if text.isEmptyOrNil {
+                setText(config.countryCode)
+            }
             keyboardType = .numberPad
         case .expirationDate:
             keyboardType = .numberPad
@@ -130,36 +133,24 @@ private extension WTypedTextField {
             datePicker.removeTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         }
     }
-}
-
-// MARK: - Date picker
-
-// MARK: - DateConfigurator
-
-public extension WTypedTextField {
     
-    struct DateConfigurator {
-        let minimumDate: Date
-        let maximumDate: Date
-        let mode: UIDatePicker.Mode
-        let locale: Locale
-        let dateFormate: String
-        
-        init(dateFormate: String, minimumDate: Date, maximumDate: Date, mode: UIDatePicker.Mode = .date, locale: Locale) {
-            self.dateFormate = dateFormate
-            self.minimumDate = minimumDate
-            self.maximumDate = maximumDate
-            self.mode = mode
-            self.locale = locale
+    func updateFormatterAndValidator() {
+        if defaultFormatterEnable {
+            formatter = dataType.defaultFormatter
+        }
+        if defaultValidatorEnable {
+            validator = dataType.defaultValidator
         }
     }
 }
+
+// MARK: - Date picker
 
 // MARK: - Settings
 
 private extension WTypedTextField {
     
-    func configureDatePickerWith(configure: DateConfigurator) -> UIDatePicker {
+    func configureDatePickerWith(configure: WTextFieldDateConfigurator) -> UIDatePicker {
         return configureDatePicker(minimumDate: configure.minimumDate,
                                    maximumDate: configure.maximumDate,
                                    mode: configure.mode,

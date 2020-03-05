@@ -28,7 +28,7 @@ struct LoginValidator: ValidatorProtocol {
         case validationLoginContainsForbiddenChars
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         if object.count < Constants.minimumLoginLengh {
             return Validation.validationLoginTooShort.asError
         }

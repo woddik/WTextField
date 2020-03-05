@@ -89,6 +89,17 @@ open class WBaseTextField: UITextField {
             
         attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: color])
     }
+    
+    /// Setting text to textField.
+    /// - Parameters:
+    ///   - newText: Simple text
+    ///   - withFormating: use current formatter and return formated text in callback if exist
+    open func setText(_ newText: String?, withFormating: Bool = true) {
+        text = newText
+        if withFormating {
+            _ = textField(self, shouldChangeCharactersIn: NSRange.init(location: 0, length: 0), replacementString: "")
+        }
+    }
 }
 
 // MARK: - Private methods
@@ -115,7 +126,7 @@ private extension WBaseTextField {
 // MARK: - UITextFieldDelegate
 
 extension WBaseTextField: UITextFieldDelegate {
-    
+
     @available(iOS 2.0, *)
     public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         return customDelegate?.textFieldShouldBeginEditing?(textField) ?? true

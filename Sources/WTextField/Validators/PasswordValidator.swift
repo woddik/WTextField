@@ -30,7 +30,7 @@ struct PasswordValidator: ValidatorProtocol {
         self.passwordRegex = passwordRegex
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
 
         if let regex = passwordRegex, !object.isValid(for: regex) {
             return Validation.validationPasswordIsNotCorrect.asError

@@ -18,7 +18,7 @@ struct CvvValidator: ValidatorProtocol {
         case validationCvvIncorrect
     }
     
-    func validate(_ object: String) -> WTextFieldErorr? {
+    func validate(_ object: String) -> WTextFieldError? {
         let withoutFormat = object.stringDigitsOnly()
         
         if withoutFormat.count != Constants.cvvDigitsCount {
