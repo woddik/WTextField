@@ -24,6 +24,8 @@ open class WTypedTextField: WStyledTextField {
     private var formatter: FormaterProtocol?
     
     private var bind: EditEventCallback?
+//    private var formatterBind: ((String?) -> String?)?
+//    private var validatorBind: ((String?) -> Bool)?
 
     /// Type of data in TextField that will be handled by validator and formatter
     open var dataType: WTextFieldDataType = .none {
@@ -44,6 +46,16 @@ open class WTypedTextField: WStyledTextField {
         return super.bind(callback: callback)
     }
     
+    public func formatter(bind: @escaping (String?) -> String?) -> WBaseTextField {
+        formatter = ClosureFormatter(callback: bind)
+        return self
+    }
+    
+    public func validator(bind: @escaping (_ object: String) -> WTextFieldError?) -> WBaseTextField {
+        validator = ClosureValidator(callback: bind)
+        return self
+    }
+    
     public override func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
@@ -54,9 +66,30 @@ open class WTypedTextField: WStyledTextField {
                                            validator: validator)
             bind?(self, WBaseTextField.BindEvent.valueChanged)
             return false
-        }
+        } 
         return super.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
     }
+    
+    func setBtnPassImageFor(style: TextFieldStyle) {
+            let newNormalImage: UIImage?
+            let newSelectedImage: UIImage?
+            let normalPassImage = actionButton.image(for: .normal)
+            let selectedPassImage = actionButton.image(for: .selected)
+            switch style {
+            case .highlighted:
+                newNormalImage = normalPassImage?.imageWithColor(color: colorSet.selected)
+                newSelectedImage = selectedPassImage?.imageWithColor(color: colorSet.selected)
+            case .notHighlighted:
+                newNormalImage = normalPassImage?.imageWithColor(color: colorSet.deselected)
+                newSelectedImage = selectedPassImage?.imageWithColor(color: colorSet.deselected)
+            case .error:
+                newNormalImage = normalPassImage?.imageWithColor(color: colorSet.error)
+                newSelectedImage = selectedPassImage?.imageWithColor(color: colorSet.error)
+            }
+
+            actionButton.setImage(newNormalImage, for: .normal)
+            actionButton.setImage(newSelectedImage, for: .selected)
+        }
     // MARK: - Public methods
     
 }
@@ -69,20 +102,19 @@ private extension WTypedTextField {
         updateFormatterAndValidator()
         
         switch dataType {
-        case .enterPassword:
-            textContentType = .password
-            isSecureTextEntry = true
-            setRightView(actionButton)
-            actionButton.isSelected = isSecureTextEntry
-            actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
-        case .newPassword:
-            if #available(iOS 12.0, *) {
+        case .enterPassword(let config), .newPassword(let config):
+            if case WTextFieldDataType.enterPassword = dataType {
+                textContentType = .password
+            } else {
                 textContentType = .newPassword
+
             }
-            isSecureTextEntry = true
+            isSecureTextEntry = config.secureModIsEnable
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
-            actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
+            if config.withSecureTogle {
+                actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
+            }
         case .email:
             keyboardType = .emailAddress
             spellCheckingType = .no
@@ -269,6 +301,4 @@ public extension WTypedTextField {
     func setLeftView(_ view: UIView?, animated: Bool = true) {
         setSideView(view, position: .left, animated: animated)
     }
-    
-    
 }
