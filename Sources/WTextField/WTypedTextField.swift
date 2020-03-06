@@ -24,8 +24,6 @@ open class WTypedTextField: WStyledTextField {
     private var formatter: FormaterProtocol?
     
     private var bind: EditEventCallback?
-//    private var formatterBind: ((String?) -> String?)?
-//    private var validatorBind: ((String?) -> Bool)?
 
     /// Type of data in TextField that will be handled by validator and formatter
     open var dataType: WTextFieldDataType = .none {
