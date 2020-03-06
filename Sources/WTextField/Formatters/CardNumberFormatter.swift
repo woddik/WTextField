@@ -7,6 +7,8 @@
 
 import UIKit
 
+import UIKit
+
 struct CardNumberFormatter: FormaterProtocol {
     
     // MARK: - Constants

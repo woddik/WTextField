@@ -20,6 +20,14 @@ extension String {
         return String(last)
     }
     
+    var containsUppercased: Bool {
+        return first(where: { $0.isUppercase}) != nil
+    }
+    
+    var containsLowercased: Bool {
+        return first(where: { $0.isLowercase }) != nil
+    }
+    
     var containsDigits: Bool {
         return rangeOfCharacter(from: .decimalDigits) != nil
     }
