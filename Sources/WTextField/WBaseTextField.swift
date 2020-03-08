@@ -42,7 +42,7 @@ open class WBaseTextField: UITextField {
     // MARK: - Public properties
     
     open var fieldHeight: CGFloat {
-        return bounds.height
+//        return bounds.height
 
         let tmpTextField = Self.init()
         tmpTextField.font = font
