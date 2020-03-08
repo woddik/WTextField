@@ -62,7 +62,6 @@ open class WMainTextField: WTypedTextField {
     public var errorLabelHeight: CGFloat? {
         didSet {
             setNeedsLayout()
-            setNeedsUpdateConstraints()
         }
     }
     
@@ -148,7 +147,7 @@ open class WMainTextField: WTypedTextField {
         resultHeight += errorLabelHeight ?? lblError.bounds.height
         resultHeight += enabledFields.contains(.customPlaceHolder) ? topInsetForCustomPlaceholder : 0
         
-        return height
+        return resultHeight
     }
 
     // MARK: - Life cycle

@@ -42,9 +42,7 @@ open class WBaseTextField: UITextField {
     // MARK: - Public properties
     
     open var fieldHeight: CGFloat {
-        return bounds.height
-
-        let tmpTextField = Self.init()
+        let tmpTextField = UITextField()
         tmpTextField.font = font
         tmpTextField.sizeToFit()
         return tmpTextField.bounds.height
@@ -80,8 +78,7 @@ open class WBaseTextField: UITextField {
             customDelegate = newValue
         }
     }
-    
-    
+
     override open func layoutSubviews() {
         super.layoutSubviews()
         heightConstraint.constant = totalHeight
@@ -91,14 +88,14 @@ open class WBaseTextField: UITextField {
     
     public func configureUI() { }
 
-    /// set callback action for observe PMCTextField has change text value
+    /// set callback action for observe WBaseTextField has change text value
     @discardableResult
     public func bind(callback: @escaping EditEventCallback) -> WBaseTextField {
         bind = callback
         return self
     }
     
-    /// set callback action for observe PMCTextField has change text value
+    /// set callback action for observe WBaseTextField ccomplete action
     @discardableResult
     public func bindAction(callback: @escaping ActionEventCallback) -> WBaseTextField {
         bindActions = callback
