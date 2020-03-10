@@ -304,6 +304,7 @@ private extension WMainTextField {
                 setupErrorLabelWith()
             }
         })
+        handleStyle(.notHighlighted)
     }
 
 }

@@ -76,19 +76,22 @@ open class WTypedTextField: WStyledTextField {
     
     override public func configureUI() {
         super.configureUI()
-
+        
     }
     
+    @discardableResult
     public override func bind(callback: @escaping WBaseTextField.EditEventCallback) -> WBaseTextField {
         bind = callback
         return super.bind(callback: callback)
     }
     
+    @discardableResult
     public func formatter(bind: @escaping (String?) -> String?) -> WBaseTextField {
         formatter = ClosureFormatter(callback: bind)
         return self
     }
     
+    @discardableResult
     public func validator(bind: @escaping (_ object: String) -> WTextFieldError?) -> WBaseTextField {
         validator = ClosureValidator(callback: bind)
         return self
