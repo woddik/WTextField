@@ -16,6 +16,10 @@ open class WSeparatedCodeTextField: WBaseTextField {
         return stackView
     }()
     
+    private var separatedTFStyleType: WMainTextField.Type = WMainTextField.self
+    
+    // MARK: - Public properties
+    
     public var codeCharCount: Int = 4 {
         didSet {
             handleCodeCharCount()
@@ -43,6 +47,14 @@ open class WSeparatedCodeTextField: WBaseTextField {
             return field.becomeFirstResponder()
         }
         return false
+    }
+    
+    // MARK: - Public methods
+    
+    /// Set text field with your style for displaing, WBaseTextField as default
+    /// - Parameter type: Separated TF style
+    public func setTextStyle<T: WMainTextField>(as type: T.Type) {
+        separatedTFStyleType = type
     }
 }
 
@@ -76,7 +88,7 @@ private extension WSeparatedCodeTextField {
     }
     
     func generateTextField(at index: Int) -> WMainTextField {
-        let textField = WMainTextField()
+        let textField = separatedTFStyleType.init()
         textField.keyboardType = .numberPad
         textField.textAlignment = .center
         textField.tag = index
