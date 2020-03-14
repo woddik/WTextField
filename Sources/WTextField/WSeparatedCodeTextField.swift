@@ -55,6 +55,7 @@ open class WSeparatedCodeTextField: WBaseTextField {
     /// - Parameter type: Separated TF style
     public func setTextStyle<T: WMainTextField>(as type: T.Type) {
         separatedTFStyleType = type
+        handleCodeCharCount()
     }
 }
 
@@ -76,11 +77,11 @@ private extension WSeparatedCodeTextField {
         stackView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
         (0..<codeCharCount).forEach({
             let field = generateTextField(at: $0)
-            field.bind { sender, event in
+            field.bind { [weak self] sender, event in
                 if event == .valueChanged {
-                    self.didChangeText(sender.text?.stringDigitsOnly(), in: sender, at: sender.tag)
+                    self?.didChangeText(sender.text?.stringDigitsOnly(), in: sender, at: sender.tag)
                 } else if case let BindEvent.beginOrEndEditting(isBegin) = event, isBegin {
-                    self.fieldDidBeginEditing(sender)
+                    self?.fieldDidBeginEditing(sender)
                 }
             }
             stackView.addArrangedSubview(field)
