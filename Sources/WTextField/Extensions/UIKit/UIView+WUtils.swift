@@ -7,6 +7,18 @@
 
 import UIKit
 
+// MARK: - UIView.Direction
+
+extension UIView {
+    
+    enum Direction {
+        case top
+        case right
+        case bottom
+        case left
+    }
+}
+
 extension UIView {
     
     static func animate(withDecision isAnimated: Bool,
@@ -35,5 +47,33 @@ extension UIView {
         return renderer.image { rendererContext in
             layer.render(in: rendererContext.cgContext)
         }
+    }
+}
+
+// MARK: - Constraints
+
+extension UIView {
+    
+    func addConstraints(_ view: UIView, with insets: UIEdgeInsets = .zero, besides directions: [Direction] = []) {
+        guard self != view else {
+            return
+        }
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        var constraints = [NSLayoutConstraint]()
+        
+        if !directions.contains(.top) {
+            constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: -insets.top))
+        }
+        if !directions.contains(.right) {
+            constraints.append(rightAnchor.constraint(equalTo: view.rightAnchor, constant: insets.right))
+        }
+        if !directions.contains(.bottom) {
+            constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: insets.bottom))
+        }
+        if !directions.contains(.left) {
+            constraints.append(leftAnchor.constraint(equalTo: view.leftAnchor, constant: -insets.left))
+        }
+        NSLayoutConstraint.activate(constraints)
     }
 }

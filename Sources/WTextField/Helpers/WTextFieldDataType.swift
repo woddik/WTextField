@@ -5,15 +5,15 @@
 //  Created by Woddi on 31.01.2020.
 //
 
-import Foundation
+import UIKit
 
 public enum WTextFieldDataType {
     case none
     case phoneNumber(config: WTypedTextField.WTextFieldPhoneConfigurator = .ukrainePhone)
     case email
     case login
-    case enterPassword
-    @available(iOS 12.0, *) case newPassword
+    case enterPassword(config: WTypedTextField.WTextFieldPasswordConfigurator = .default)
+    case newPassword(config: WTypedTextField.WTextFieldPasswordConfigurator = .default)
     case topUpCost
     case transferByCardCost
     case card
@@ -54,7 +54,8 @@ public enum WTextFieldDataType {
         case .phoneNumber(let config): return PhoneValidator(configure: config)
         case .email: return EmailValidator()
         case .login: return LoginValidator()
-        case .enterPassword, .newPassword: return PasswordValidator()
+        case .enterPassword(let config), .newPassword(let config):
+            return PasswordValidator(config: config)
         case .topUpCost: return CostValidator()
         case .transferByCardCost: return CostValidator()
         case .card: return CardValidator()

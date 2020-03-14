@@ -22,34 +22,38 @@ struct PasswordValidator: ValidatorProtocol {
         case validationPasswordShouldContainDigits
         case validationPasswordShouldContainLetters
         case validationPasswordIsNotCorrect
+        case validationPasswordShouldContainsLowerAndUpperCases
     }
     
-    private let passwordRegex: String?
+    private let config: WTypedTextField.WTextFieldPasswordConfigurator
     
-    init(passwordRegex: String? = nil) {
-        self.passwordRegex = passwordRegex
+    init(config: WTypedTextField.WTextFieldPasswordConfigurator) {
+        self.config = config
     }
     
     func validate(_ object: String) -> WTextFieldError? {
 
-        if let regex = passwordRegex, !object.isValid(for: regex) {
+        if let regex = config.validationOptions.first(where: { $0.isRegex })?.value, !object.isValid(for: regex) {
             return Validation.validationPasswordIsNotCorrect.asError
         }
         
-        if object.count < Constants.minimumPassCount {
+        if object.count < config.minimumPassCount {
             return Validation.validationPasswordTooShort.asError
         }
 
-        if object.count > Constants.maximumPassCount {
+        if object.count > config.maximumPassCount {
             return Validation.validationPasswordTooLong.asError
         }
 
-        if !object.lowercased().containsDigits {
+        if !object.lowercased().containsDigits && config.validationOptions.contains(.digits) {
             return Validation.validationPasswordShouldContainDigits.asError
         }
 
-        if !object.lowercased().containsSpecialSymbols {
+        if !object.lowercased().containsSpecialSymbols && config.validationOptions.contains(.specialSymbols)  {
             return Validation.validationPasswordShouldContainLetters.asError
+        }
+        if !(object.containsLowercased && object.containsUppercased) && config.validationOptions.contains(.upperAndLowerCased) {
+            return Validation.validationPasswordShouldContainsLowerAndUpperCases.asError
         }
         
         return nil

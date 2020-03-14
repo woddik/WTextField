@@ -54,6 +54,8 @@ open class WStyledTextField: WBaseTextField {
     public private(set) var colorSet: WTextFieldColorSet = ColorConfigurator.default
     public private(set) var placeholderColorSet: WTextFieldColorSet = ColorConfigurator.placeholder
 
+    public private(set) var currentStyle: TextFieldStyle = .notHighlighted
+    
     // MARK: - Public methods
     
     public func changeStyleTo(style: TextFieldStyle, animated: Bool = true) {

@@ -8,9 +8,16 @@
 import UIKit
 
 open class WTypedTextField: WStyledTextField {
+
+    public enum WRightViewMode {
+        case none
+        case editButton(edit: UIImage, close: UIImage)
+        case clear(UIImage)
+        case custom(UIImage, selector: Selector)
+    }
     
-    private(set) var defaultFormatterEnable: Bool = true
-    private(set) var defaultValidatorEnable: Bool = true
+    // MARK: - Private properties
+    private var isFieldActive = false
 
     private var datePicker: UIDatePicker = UIDatePicker()
     private var actionButton: UIButton = {
@@ -20,11 +27,16 @@ open class WTypedTextField: WStyledTextField {
         return btn
     }()
     
-    private var validator: ValidatorProtocol?
-    private var formatter: FormaterProtocol?
-    
     private var bind: EditEventCallback?
 
+    // MARK: - Public properties
+        
+    private(set) var defaultFormatterEnable: Bool = true
+    private(set) var defaultValidatorEnable: Bool = true
+
+    private(set) var validator: ValidatorProtocol?
+    private(set) var formatter: FormaterProtocol?
+    
     /// Type of data in TextField that will be handled by validator and formatter
     open var dataType: WTextFieldDataType = .none {
         didSet {
@@ -32,16 +44,57 @@ open class WTypedTextField: WStyledTextField {
         }
     }
 
+    /// Change textfield rightView mode. Default is none
+    open var customRightViewMode: WRightViewMode = .none {
+        willSet (newRightViewMode) {
+            switch newRightViewMode {
+            case .none:
+                rightViewMode = UITextField.ViewMode.never
+            case .editButton(let normal, let selected):
+                let size = CGSize.init(width: 22, height: 44)
+                configureRightButton(size: size, action: #selector(editText), image: normal, selectedImage: selected)
+            case .clear(let image):
+                let size = CGSize.init(width: 22, height: 44)
+                configureRightButton(size: size, action: #selector(clearText), image: image)
+            case .custom(let image, let selector):
+                let size = CGSize.init(width: 22, height: 44)
+                configureRightButton(size: size, action: selector, image: image)
+            }
+        }
+    }
+    
+    /// Returns result of setted validator. Returns false if data is not valid.
+    /// If validator is not setted up - returns true.
+    open var isValid: Bool {
+        guard let validator = validator else {
+            return true
+        }
+        return validator.validate(text ?? "") == nil
+    }
+    
     // MARK: - Life cycle
     
     override public func configureUI() {
         super.configureUI()
-
+        
     }
     
+    @discardableResult
     public override func bind(callback: @escaping WBaseTextField.EditEventCallback) -> WBaseTextField {
         bind = callback
         return super.bind(callback: callback)
+    }
+    
+    @discardableResult
+    public func formatter(bind: @escaping (String?) -> String?) -> WBaseTextField {
+        formatter = ClosureFormatter(callback: bind)
+        return self
+    }
+    
+    @discardableResult
+    public func validator(bind: @escaping (_ object: String) -> WTextFieldError?) -> WBaseTextField {
+        validator = ClosureValidator(callback: bind)
+        return self
     }
     
     public override func textField(_ textField: UITextField,
@@ -54,8 +107,46 @@ open class WTypedTextField: WStyledTextField {
                                            validator: validator)
             bind?(self, WBaseTextField.BindEvent.valueChanged)
             return false
-        }
+        } 
         return super.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
+    }
+    
+    open override func handleStyle(_ style: WStyledTextField.TextFieldStyle) {
+        super.handleStyle(style)
+        
+        switch style {
+        case .highlighted:
+            if case WRightViewMode.editButton = customRightViewMode {
+                actionButton.isSelected = true
+                isFieldActive = true
+            }
+        case .notHighlighted:
+            if case WRightViewMode.editButton = customRightViewMode {
+                actionButton.isSelected = false
+            }
+        default: break
+        }
+    }
+
+    func setBtnPassImageFor(style: TextFieldStyle) {
+        let newNormalImage: UIImage?
+        let newSelectedImage: UIImage?
+        let normalPassImage = actionButton.image(for: .normal)
+        let selectedPassImage = actionButton.image(for: .selected)
+        switch style {
+        case .highlighted:
+            newNormalImage = normalPassImage?.imageWithColor(color: colorSet.selected)
+            newSelectedImage = selectedPassImage?.imageWithColor(color: colorSet.selected)
+        case .notHighlighted:
+            newNormalImage = normalPassImage?.imageWithColor(color: colorSet.deselected)
+            newSelectedImage = selectedPassImage?.imageWithColor(color: colorSet.deselected)
+        case .error:
+            newNormalImage = normalPassImage?.imageWithColor(color: colorSet.error)
+            newSelectedImage = selectedPassImage?.imageWithColor(color: colorSet.error)
+        }
+        
+        actionButton.setImage(newNormalImage, for: .normal)
+        actionButton.setImage(newSelectedImage, for: .selected)
     }
     // MARK: - Public methods
     
@@ -69,20 +160,19 @@ private extension WTypedTextField {
         updateFormatterAndValidator()
         
         switch dataType {
-        case .enterPassword:
-            textContentType = .password
-            isSecureTextEntry = true
-            setRightView(actionButton)
-            actionButton.isSelected = isSecureTextEntry
-            actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
-        case .newPassword:
-            if #available(iOS 12.0, *) {
+        case .enterPassword(let config), .newPassword(let config):
+            if case WTextFieldDataType.enterPassword = dataType {
+                textContentType = .password
+            } else {
                 textContentType = .newPassword
+
             }
-            isSecureTextEntry = true
+            isSecureTextEntry = config.secureModIsEnable
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
-            actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
+            if config.withSecureTogle {
+                actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
+            }
         case .email:
             keyboardType = .emailAddress
             spellCheckingType = .no
@@ -141,6 +231,17 @@ private extension WTypedTextField {
         if defaultValidatorEnable {
             validator = dataType.defaultValidator
         }
+    }
+    
+    func configureRightButton(size: CGSize, action: Selector, image: UIImage, selectedImage: UIImage? = nil) {
+        actionButton = UIButton(frame: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        actionButton.addTarget(self, action: action, for: UIControl.Event.touchUpInside)
+        actionButton.setImage(image, for: .normal)
+        actionButton.setImage(selectedImage, for: .selected)
+        actionButton.imageView?.contentMode = .scaleAspectFit
+        rightViewMode = UITextField.ViewMode.always
+        rightView = actionButton
+        setRightView(actionButton, animated: false)
     }
 }
 
@@ -246,6 +347,27 @@ private extension WTypedTextField {
         text = formater.string(from: datePicker.date)
         sendActions(for: .editingChanged)
     }
+    
+    @objc func editText() {
+        if isFieldActive {
+            isFieldActive = false
+            resignFirstResponder()
+        } else {
+            actionButton.isSelected = true
+            isFieldActive = true
+            becomeFirstResponder()
+        }
+    }
+    
+    @objc func clearText() {
+        if case WTextFieldDataType.phoneNumber(let config) = dataType {
+            setText(config.countryCode)
+        } else {
+            setText("")
+        }
+        setRightView(nil)
+        sendActions(for: .editingChanged)
+    }
 }
 
 // MARK: - Right view settings
@@ -269,6 +391,4 @@ public extension WTypedTextField {
     func setLeftView(_ view: UIView?, animated: Bool = true) {
         setSideView(view, position: .left, animated: animated)
     }
-    
-    
 }

@@ -37,7 +37,20 @@ open class WBaseTextField: UITextField {
 
     private weak var customDelegate: UITextFieldDelegate?
     
+    private var heightConstraint = NSLayoutConstraint()
+
     // MARK: - Public properties
+    
+    open var fieldHeight: CGFloat {
+        let tmpTextField = UITextField()
+        tmpTextField.font = font
+        tmpTextField.sizeToFit()
+        return tmpTextField.bounds.height
+    }
+
+    open var totalHeight: CGFloat {
+        return fieldHeight
+    }
     
     open var padding: UIEdgeInsets {
         return .zero
@@ -65,19 +78,24 @@ open class WBaseTextField: UITextField {
             customDelegate = newValue
         }
     }
+
+    override open func layoutSubviews() {
+        super.layoutSubviews()
+        heightConstraint.constant = totalHeight
+    }
     
     // MARK: - Public methods
     
     public func configureUI() { }
 
-    /// set callback action for observe PMCTextField has change text value
+    /// set callback action for observe WBaseTextField has change text value
     @discardableResult
     public func bind(callback: @escaping EditEventCallback) -> WBaseTextField {
         bind = callback
         return self
     }
     
-    /// set callback action for observe PMCTextField has change text value
+    /// set callback action for observe WBaseTextField ccomplete action
     @discardableResult
     public func bindAction(callback: @escaping ActionEventCallback) -> WBaseTextField {
         bindActions = callback
@@ -108,6 +126,13 @@ private extension WBaseTextField {
     
     func setupDefaults() {
         super.delegate = self
+        
+        borderStyle = .none
+        contentVerticalAlignment = .top
+        heightConstraint = heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight)
+        heightConstraint.priority = UILayoutPriority.init(900)
+        
+        NSLayoutConstraint.activate([heightConstraint])
         
         addTarget(self, action: #selector(didChangeText(_:)), for: .editingChanged)
     }

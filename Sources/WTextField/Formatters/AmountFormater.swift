@@ -5,8 +5,6 @@
 //  Copyright © 2019 SDK.finance. All rights reserved.
 //
 
-import UIKit
-
 struct AmountFormater: FormaterProtocol {
     
     private let maxNumbersAfterPoint: Int?
