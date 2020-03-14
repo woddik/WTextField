@@ -7,7 +7,7 @@
 
 import UIKit
 
-class WSeparatedCodeTextField: WBaseTextField {
+open class WSeparatedCodeTextField: WBaseTextField {
 
     private let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -30,7 +30,7 @@ class WSeparatedCodeTextField: WBaseTextField {
     
     // MARK: - Life cycle
     
-    override func configureUI() {
+    override open func configureUI() {
         super.configureUI()
         textContentType = .oneTimeCode
         addSubview(stackView)
@@ -38,7 +38,7 @@ class WSeparatedCodeTextField: WBaseTextField {
         updateSpacing()
     }
     
-    override func becomeFirstResponder() -> Bool {
+    override open func becomeFirstResponder() -> Bool {
         if let field = firstEmptyField {
             return field.becomeFirstResponder()
         }
