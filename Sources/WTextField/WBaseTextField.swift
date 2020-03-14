@@ -86,7 +86,8 @@ open class WBaseTextField: UITextField {
     
     // MARK: - Public methods
     
-    public func configureUI() { }
+    /// method calling after any init
+    open func configureUI() { }
 
     /// set callback action for observe WBaseTextField has change text value
     @discardableResult
