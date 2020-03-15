@@ -9,34 +9,10 @@ import UIKit
 
 open class WMainTextField: WTypedTextField {
     
-    public enum Element: TextFieldColorSet, CaseIterable, Hashable {
+    public enum Element: CaseIterable, Hashable {
         case customPlaceHolder
         case border
         case error
-        
-        public var selected: UIColor {
-            switch self {
-            case .customPlaceHolder: return .black
-            case .border: return .black
-            case .error: return .black
-            }
-        }
-        
-        public var deselected: UIColor {
-            switch self {
-            case .customPlaceHolder: return .lightGray
-            case .border: return .lightGray
-            case .error: return .lightGray
-            }
-        }
-        
-        public var error: UIColor {
-            switch self {
-            case .customPlaceHolder: return .red
-            case .border: return .red
-            case .error: return .red
-            }
-        }
     }
 
     // MARK: - Private properties
@@ -118,16 +94,16 @@ open class WMainTextField: WTypedTextField {
     open var separatorViewHeight: CGFloat { 1 }
     
     // MARK: - Colors
-    open var customPlaceholderColorSet: TextFieldColorSet {
-        return Element.customPlaceHolder
+    open var customPlaceholderColorSet: WTextFieldColorSet {
+        return ColorConfigurator.customPlaceholder
     }
     
-    open var borderColorSet: TextFieldColorSet {
-        return Element.border
+    open var borderColorSet: WTextFieldColorSet {
+        return ColorConfigurator.border
     }
     
-    open var errorColorSet: TextFieldColorSet {
-        return Element.error
+    open var errorColorSet: WTextFieldColorSet {
+        return ColorConfigurator.error
     }
     
     // MARK: - Fonts

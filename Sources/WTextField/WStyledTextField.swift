@@ -7,15 +7,15 @@
 
 import UIKit
 
-private struct ColorConfigurator: WTextFieldColorSet {
+public struct ColorConfigurator: WTextFieldColorSet {
     
-    let selected: UIColor
+    public let selected: UIColor
     
-    let deselected: UIColor
+    public let deselected: UIColor
     
-    let error: UIColor
+    public let error: UIColor
     
-    init(selected: UIColor = .black, deselected: UIColor = .black, error: UIColor = .black) {
+    public init(selected: UIColor = .black, deselected: UIColor = .black, error: UIColor = .black) {
         self.selected = selected
         self.deselected = deselected
         self.error = error
@@ -29,16 +29,23 @@ private struct ColorConfigurator: WTextFieldColorSet {
         let color = UIColor(red: 0.235, green: 0.235, blue: 0.263, alpha: 0.3)
         return ColorConfigurator(selected: color, deselected: color, error: color)
     }
-}
-
-public protocol WTextFieldColorSet {
     
-    var selected: UIColor { get }
+    static var customPlaceholder: WTextFieldColorSet {
+        return commonStyle
+    }
     
-    var deselected: UIColor { get }
+    static var error: WTextFieldColorSet {
+        return commonStyle
+    }
     
-    var error: UIColor { get }
+    static var border: WTextFieldColorSet {
+        return commonStyle
+    }
     
+    private static var commonStyle: WTextFieldColorSet {
+        let deselectedColor = UIColor(red: 0.235, green: 0.235, blue: 0.263, alpha: 0.3)
+        return ColorConfigurator(selected: .black, deselected: deselectedColor, error: .red)
+    }
 }
 
 open class WStyledTextField: WBaseTextField {
