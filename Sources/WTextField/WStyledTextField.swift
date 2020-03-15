@@ -58,14 +58,15 @@ open class WStyledTextField: WBaseTextField {
     
     // MARK: - Public properties
     
-    public private(set) var colorSet: WTextFieldColorSet = ColorConfigurator.default
-    public private(set) var placeholderColorSet: WTextFieldColorSet = ColorConfigurator.placeholder
+    open private(set) var colorSet: WTextFieldColorSet = ColorConfigurator.default
+    open private(set) var placeholderColorSet: WTextFieldColorSet = ColorConfigurator.placeholder
 
     public private(set) var currentStyle: TextFieldStyle = .notHighlighted
     
     // MARK: - Public methods
     
     public func changeStyleTo(style: TextFieldStyle, animated: Bool = true) {
+        currentStyle = style
         layoutIfNeeded()
         
         UIView.animate(withDecision: true, animations: { [weak self] in
