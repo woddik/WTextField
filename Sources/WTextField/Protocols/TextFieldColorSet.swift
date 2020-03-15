@@ -7,8 +7,11 @@
 
 import UIKit
 
-public protocol TextFieldColorSet {
+public protocol WTextFieldColorSet {
+    
     var selected: UIColor { get }
+    
     var deselected: UIColor { get }
+    
     var error: UIColor { get }
 }
