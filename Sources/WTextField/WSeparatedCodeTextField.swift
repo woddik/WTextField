@@ -24,6 +24,8 @@ open class WSeparatedCodeTextField: WBaseTextField {
     
     private var separatedTFStyleType: WMainTextField.Type = WMainTextField.self
     
+    private var bind: EditEventCallback?
+    
     // MARK: - Public properties
     
     public var codeCharCount: Int = 4 {
@@ -39,6 +41,17 @@ open class WSeparatedCodeTextField: WBaseTextField {
     }
     
     // MARK: - Life cycle
+    
+    open override var text: String? {
+        get {
+            return collectText()
+        }
+        set {
+            if let textField = stackView.arrangedSubviews.first as? WMainTextField {
+                didChangeText(newValue, in: textField, at: 0)
+            }
+        }
+    }
     
     open override var isSecureTextEntry: Bool {
         didSet {
@@ -81,6 +94,14 @@ open class WSeparatedCodeTextField: WBaseTextField {
         separatedTFStyleType = type
         handleCodeCharCount()
     }
+    
+    /// set callback action for observe WBaseTextField has change text value
+    @discardableResult
+    public override func bind(callback: @escaping EditEventCallback) -> WBaseTextField {
+        bind = callback
+        return self
+    }
+    
 }
 
 // MARK: - Private methods
@@ -162,19 +183,25 @@ private extension WSeparatedCodeTextField {
         } else {
             getField(at: index + 1)?.becomeFirstResponder()
         }
+        bind?(self, .valueChanged)
     }
     
     func separatedCopiedTextByFields(_ text: String, fromCurrent index: Int) {
         guard text.count > 0 && index < codeCharCount else {
             return
         }
-        let char = text[0]
-        let field = getField(at: index)
-        field?.text = "\(char)"
-        if index == codeCharCount - 1 {
-            endEditing(true)
+        guard let field = getField(at: index) else {
+            return
         }
+        let char = text[0]
+
+        didChangeText("\(char)", in: field, at: index)
+
         separatedCopiedTextByFields(String(text.dropFirst()), fromCurrent: index + 1)
+    }
+    
+    func collectText() -> String {
+        return stackView.arrangedSubviews.compactMap({ ($0 as? UITextField)?.text }).joined()
     }
 }
 
