@@ -9,6 +9,12 @@ import UIKit
 
 open class WSeparatedCodeTextField: WBaseTextField {
 
+    fileprivate enum UpdatingType {
+        case font
+        case keyboardStyle
+        case secure
+    }
+    
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -36,13 +42,19 @@ open class WSeparatedCodeTextField: WBaseTextField {
     
     open override var isSecureTextEntry: Bool {
         didSet {
-            updateSecure()
+            updateSubFields(element: .secure)
         }
     }
     
     open override var font: UIFont? {
         didSet {
-            updateFonts()
+            updateSubFields(element: .font)
+        }
+    }
+    
+    open override var keyboardAppearance: UIKeyboardAppearance {
+        didSet {
+            updateSubFields(element: .keyboardStyle)
         }
     }
     
@@ -79,15 +91,22 @@ private extension WSeparatedCodeTextField {
         return stackView.arrangedSubviews
             .first(where: { ($0 as? WBaseTextField)?.text.isEmptyOrNil == true }) as? WBaseTextField
     }
-    
-    func updateFonts() {
-        stackView.arrangedSubviews.forEach({ ($0 as? UITextField)?.font = font })
+
+    func updateSubFields(element: UpdatingType) {
+        stackView.arrangedSubviews.forEach({
+            let textField = ($0 as? UITextField)
+            switch element {
+            case .font:
+                textField?.font = font
+            case .keyboardStyle:
+                textField?.keyboardAppearance = keyboardAppearance
+            case .secure:
+                textField?.isSecureTextEntry = isSecureTextEntry
+            }
+        })
+
     }
 
-    func updateSecure() {
-        stackView.arrangedSubviews.forEach({ ($0 as? UITextField)?.isSecureTextEntry = isSecureTextEntry })
-    }
-    
     func updateSpacing() {
         stackView.spacing = fieldsSpacing
         handleCodeCharCount()
@@ -110,6 +129,7 @@ private extension WSeparatedCodeTextField {
     
     func generateTextField(at index: Int) -> WMainTextField {
         let textField = separatedTFStyleType.init()
+        textField.keyboardAppearance = keyboardAppearance
         textField.font = font
         textField.isSecureTextEntry = isSecureTextEntry
         textField.keyboardType = .numberPad
