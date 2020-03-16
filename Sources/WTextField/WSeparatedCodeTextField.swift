@@ -34,6 +34,12 @@ open class WSeparatedCodeTextField: WBaseTextField {
     
     // MARK: - Life cycle
     
+    open override var isSecureTextEntry: Bool {
+        didSet {
+            updateSecure()
+        }
+    }
+    
     override open func configureUI() {
         super.configureUI()
         textContentType = .oneTimeCode
@@ -66,6 +72,10 @@ private extension WSeparatedCodeTextField {
     var firstEmptyField: WBaseTextField? {
         return stackView.arrangedSubviews
             .first(where: { ($0 as? WBaseTextField)?.text.isEmptyOrNil == true }) as? WBaseTextField
+    }
+    
+    func updateSecure() {
+        stackView.arrangedSubviews.forEach({ ($0 as? UITextField)?.isSecureTextEntry = isSecureTextEntry })
     }
     
     func updateSpacing() {
