@@ -193,9 +193,9 @@ private extension WSeparatedCodeTextField {
         guard let field = getField(at: index) else {
             return
         }
-        let char = text[0]
-
-        didChangeText("\(char)", in: field, at: index)
+        let charText = "\(text[0])"
+        field.text = charText
+        didChangeText(charText, in: field, at: index)
 
         separatedCopiedTextByFields(String(text.dropFirst()), fromCurrent: index + 1)
     }
