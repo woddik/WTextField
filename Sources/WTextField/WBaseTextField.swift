@@ -14,6 +14,7 @@ open class WBaseTextField: UITextField {
     public enum BindEventAction: Equatable {
         case `return`
         case clear
+        case backspace
     }
     
     // MARK: - Initializer
@@ -88,7 +89,12 @@ open class WBaseTextField: UITextField {
     
     /// method calling after any init
     open func configureUI() { }
-
+    
+    open override func deleteBackward() {
+        super.deleteBackward()
+        bindActions?(self, .backspace)
+    }
+    
     /// set callback action for observe WBaseTextField has change text value
     @discardableResult
     public func bind(callback: @escaping EditEventCallback) -> WBaseTextField {
