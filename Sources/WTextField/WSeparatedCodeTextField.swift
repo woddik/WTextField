@@ -40,6 +40,12 @@ open class WSeparatedCodeTextField: WBaseTextField {
         }
     }
     
+    open override var font: UIFont? {
+        didSet {
+            updateFonts()
+        }
+    }
+    
     override open func configureUI() {
         super.configureUI()
         textContentType = .oneTimeCode
@@ -74,6 +80,10 @@ private extension WSeparatedCodeTextField {
             .first(where: { ($0 as? WBaseTextField)?.text.isEmptyOrNil == true }) as? WBaseTextField
     }
     
+    func updateFonts() {
+        stackView.arrangedSubviews.forEach({ ($0 as? UITextField)?.font = font })
+    }
+
     func updateSecure() {
         stackView.arrangedSubviews.forEach({ ($0 as? UITextField)?.isSecureTextEntry = isSecureTextEntry })
     }
@@ -100,6 +110,8 @@ private extension WSeparatedCodeTextField {
     
     func generateTextField(at index: Int) -> WMainTextField {
         let textField = separatedTFStyleType.init()
+        textField.font = font
+        textField.isSecureTextEntry = isSecureTextEntry
         textField.keyboardType = .numberPad
         textField.textAlignment = .center
         textField.tag = index
