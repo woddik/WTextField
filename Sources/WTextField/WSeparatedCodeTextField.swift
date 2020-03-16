@@ -9,6 +9,12 @@ import UIKit
 
 open class WSeparatedCodeTextField: WBaseTextField {
 
+    // MARK: - Constants
+    
+    private struct Constants {
+        static let likeEmptyStrinng = "\u{200b}"
+    }
+    
     fileprivate enum UpdatingType {
         case font
         case keyboardStyle
@@ -161,7 +167,7 @@ private extension WSeparatedCodeTextField {
     }
     
     func fieldDidBeginEditing(_ field: WBaseTextField) {
-        field.text = ""
+        field.text = Constants.likeEmptyStrinng
     }
     
     func getField(at index: Int) -> WMainTextField? {
@@ -186,22 +192,25 @@ private extension WSeparatedCodeTextField {
         bind?(self, .valueChanged)
     }
     
-    func separatedCopiedTextByFields(_ text: String, fromCurrent index: Int) {
-        guard text.count > 0 && index < codeCharCount else {
+    func separatedCopiedTextByFields(_ str: String, fromCurrent index: Int) {
+        guard str.count > 0 && index < codeCharCount else {
             return
         }
         guard let field = getField(at: index) else {
             return
         }
-        let charText = "\(text[0])"
+        let charText = "\(str[0])"
         field.text = charText
         didChangeText(charText, in: field, at: index)
 
-        separatedCopiedTextByFields(String(text.dropFirst()), fromCurrent: index + 1)
+        separatedCopiedTextByFields(String(str.dropFirst()), fromCurrent: index + 1)
     }
     
     func collectText() -> String {
-        return stackView.arrangedSubviews.compactMap({ ($0 as? UITextField)?.text }).joined()
+        return stackView.arrangedSubviews
+            .compactMap({ ($0 as? UITextField)?.text?
+            .replacingOccurrences(of: Constants.likeEmptyStrinng, with: "") })
+            .joined()
     }
 }
 
