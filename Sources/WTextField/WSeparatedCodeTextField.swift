@@ -8,12 +8,6 @@
 import UIKit
 
 open class WSeparatedCodeTextField: WBaseTextField {
-
-    // MARK: - Constants
-    
-    private struct Constants {
-        static let likeEmptyStrinng = "\u{200b}"
-    }
     
     fileprivate enum UpdatingType {
         case font
@@ -31,6 +25,8 @@ open class WSeparatedCodeTextField: WBaseTextField {
     private var separatedTFStyleType: WMainTextField.Type = WMainTextField.self
     
     private var bind: EditEventCallback?
+    
+    private var cache: [Int: String] = [:]
     
     // MARK: - Public properties
     
@@ -54,7 +50,7 @@ open class WSeparatedCodeTextField: WBaseTextField {
         }
         set {
             if let textField = stackView.arrangedSubviews.first as? WMainTextField {
-                didChangeText(newValue, in: textField, at: 0)
+                didChangeText(newValue ?? "", in: textField, at: 0)
             }
         }
     }
@@ -140,14 +136,27 @@ private extension WSeparatedCodeTextField {
     }
     
     func handleCodeCharCount() {
+        cache.removeAll()
         stackView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
         (0..<codeCharCount).forEach({
+            self.cache[$0] = ""
             let field = generateTextField(at: $0)
             field.bind { [weak self] sender, event in
+                guard let text = sender.text?.stringDigitsOnly() else {
+                    return
+                }
                 if event == .valueChanged {
-                    self?.didChangeText(sender.text?.stringDigitsOnly(), in: sender, at: sender.tag)
-                } else if case let BindEvent.beginOrEndEditting(isBegin) = event, isBegin {
-                    self?.fieldDidBeginEditing(sender)
+                    let index = sender.tag
+                    if text.count > 1 {
+                        let handledText = self?.cache[index]?.count == 0 ? text : String(text.dropFirst())
+                        self?.separatePastedTextByFields(handledText, fromCurrent: index)
+                    } else {
+                        self?.didChangeText(text, in: sender, at: index)
+                    }
+                }
+            }.bindAction { [weak self] sender, event in
+                if event == .backspace {
+                    self?.handleBackspaceActionField(at: sender.tag)
                 }
             }
             stackView.addArrangedSubview(field)
@@ -166,33 +175,27 @@ private extension WSeparatedCodeTextField {
         return textField
     }
     
-    func fieldDidBeginEditing(_ field: WBaseTextField) {
-        field.text = Constants.likeEmptyStrinng
-    }
-    
     func getField(at index: Int) -> WMainTextField? {
         return (stackView.arrangedSubviews as? [WMainTextField])?.first(where: { $0.tag == index })
     }
     
-    func didChangeText(_ text: String?, in field: WBaseTextField, at index: Int) {
-        guard let text = text else {
-            return
-        }
-        if text.count > 1 {
-            separatedCopiedTextByFields(text, fromCurrent: index)
-            return
-        }
+    func didChangeText(_ text: String, in field: WBaseTextField, at index: Int) {
         if text.isEmpty {
-            getField(at: index - 1)?.becomeFirstResponder()
+            
         } else if text.count == 1 && index == codeCharCount - 1 {
             endEditing(true)
         } else {
             getField(at: index + 1)?.becomeFirstResponder()
         }
+        cache[index] = text
         bind?(self, .valueChanged)
     }
     
-    func separatedCopiedTextByFields(_ str: String, fromCurrent index: Int) {
+    func handleBackspaceActionField(at index: Int) {
+        getField(at: index - 1)?.becomeFirstResponder()
+    }
+    
+    func separatePastedTextByFields(_ str: String, fromCurrent index: Int) {
         guard str.count > 0 && index < codeCharCount else {
             return
         }
@@ -203,14 +206,10 @@ private extension WSeparatedCodeTextField {
         field.text = charText
         didChangeText(charText, in: field, at: index)
 
-        separatedCopiedTextByFields(String(str.dropFirst()), fromCurrent: index + 1)
+        separatePastedTextByFields(String(str.dropFirst()), fromCurrent: index + 1)
     }
     
     func collectText() -> String {
-        return stackView.arrangedSubviews
-            .compactMap({ ($0 as? UITextField)?.text?
-            .replacingOccurrences(of: Constants.likeEmptyStrinng, with: "") })
-            .joined()
+        return stackView.arrangedSubviews.compactMap({ ($0 as? UITextField)?.text }).joined()
     }
 }
-
