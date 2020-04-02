@@ -12,8 +12,18 @@ public extension WTypedTextField {
     struct SecureConfigurator {
         public let secureModIsEnable: Bool
         public let withSecureTogle: Bool
-        public let showPassImage: UIImage
-        public let hidePassImage: UIImage
+        public let showPassImage: UIImage?
+        public let hidePassImage: UIImage?
+        
+        init(secureModIsEnable: Bool = true,
+             withSecureTogle: Bool = true,
+             showPassImage: UIImage?,
+             hidePassImage: UIImage?) {
+            self.secureModIsEnable = secureModIsEnable
+            self.withSecureTogle = withSecureTogle
+            self.showPassImage = showPassImage
+            self.hidePassImage = hidePassImage
+        }
         
         public static var `default`: SecureConfigurator {
             var showImage = UIImage()
@@ -22,9 +32,7 @@ public extension WTypedTextField {
                 showImage = UIImage(systemName: "eye") ?? UIImage()
                 hideImage = UIImage(systemName: "eye.slash") ?? UIImage()
             }
-            return self.init(secureModIsEnable: true,
-                             withSecureTogle: true,
-                             showPassImage: showImage,
+            return self.init(showPassImage: showImage,
                              hidePassImage: hideImage)
         }
     }
@@ -69,9 +77,9 @@ public extension WTypedTextField {
     struct WTextFieldPasswordConfigurator {
         // MARK: - Constants
         
-        private struct Constants {
-            static let minimumPassCount: Int = 6
-            static let maximumPassCount: Int = 26
+        public struct Constants {
+            public static let minimumPassCount: Int = 6
+            public static let maximumPassCount: Int = 26
         }
         
         // MARK: - Public properties
@@ -91,18 +99,18 @@ public extension WTypedTextField {
         public let maximumPassCount: Int
         public let secureModIsEnable: Bool
         public let withSecureTogle: Bool
-        public let showPassImage: UIImage
-        public let hidePassImage: UIImage
+        public let showPassImage: UIImage?
+        public let hidePassImage: UIImage?
         public let validationOptions: [ValidationOption]
         
         // MARK: - Initializer
         
-        public init(minimumPassCount: Int,
-                    maximumPassCount: Int,
-                    secureModIsEnable: Bool,
-                    withSecureTogle: Bool,
-                    showPassImage: UIImage,
-                    hidePassImage: UIImage,
+        public init(minimumPassCount: Int = Constants.minimumPassCount,
+                    maximumPassCount: Int = Constants.maximumPassCount,
+                    secureModIsEnable: Bool = true,
+                    withSecureTogle: Bool = true,
+                    showPassImage: UIImage?,
+                    hidePassImage: UIImage?,
                     validationOptions: [ValidationOption] = .default) {
             self.minimumPassCount = minimumPassCount
             self.maximumPassCount = maximumPassCount
@@ -113,8 +121,8 @@ public extension WTypedTextField {
             self.validationOptions = validationOptions
         }
         
-        public init(minimumPassCount: Int,
-                    maximumPassCount: Int,
+        public init(minimumPassCount: Int = Constants.minimumPassCount,
+                    maximumPassCount: Int = Constants.maximumPassCount,
                     secureConfig: SecureConfigurator = .default,
                     validationOptions: [ValidationOption] = .default) {
 

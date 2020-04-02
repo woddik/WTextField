@@ -40,6 +40,12 @@ open class WBaseTextField: UITextField {
     
     private var heightConstraint = NSLayoutConstraint()
 
+    private var paddingIncludedVies: UIEdgeInsets {
+        return UIEdgeInsets(top: padding.top,
+                            left: padding.left + (leftView == nil ? 0 : 8),
+                            bottom: padding.bottom,
+                            right: padding.right)
+    }
     // MARK: - Public properties
     
     open var fieldHeight: CGFloat {
@@ -59,16 +65,51 @@ open class WBaseTextField: UITextField {
     
     // MARK: - Life cycle
     
+    override open func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+
+        if newSuperview is UIStackView {
+            heightConstraint.priority = UILayoutPriority.init(1000)
+        }
+    }
+    
+    @discardableResult
+    override open func resignFirstResponder() -> Bool {
+        let res = super.resignFirstResponder()
+        setNeedsLayout()
+        layoutIfNeeded()
+        return res
+    }
+    
     override open func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: padding)
+        let origin = super.textRect(forBounds: bounds)
+        return origin.inset(by: paddingIncludedVies)
     }
     
     override open func placeholderRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: padding)
+        let origin = super.placeholderRect(forBounds: bounds)
+        return origin.inset(by: padding)
     }
     
     override open func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: padding)
+        let origin = super.editingRect(forBounds: bounds)
+        return origin.inset(by: paddingIncludedVies)
+    }
+    
+    override open func rightViewRect(forBounds bounds: CGRect) -> CGRect {
+        var newRect = super.rightViewRect(forBounds: bounds)
+        let diff = padding.top - newRect.size.height / 2 + 7
+        newRect.origin.y = diff
+        
+        return newRect
+    }
+    
+    override open func leftViewRect(forBounds bounds: CGRect) -> CGRect {
+        var newRect = super.leftViewRect(forBounds: bounds)
+        let diff = padding.top - newRect.size.height / 2 + 7
+        newRect.origin.y = diff
+        
+        return newRect
     }
     
     override open var delegate: UITextFieldDelegate? {

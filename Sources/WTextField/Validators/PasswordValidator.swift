@@ -45,14 +45,16 @@ struct PasswordValidator: ValidatorProtocol {
             return Validation.validationPasswordTooLong.asError
         }
 
-        if !object.lowercased().containsDigits && config.validationOptions.contains(.digits) {
+        if config.validationOptions.contains(.digits) && !object.lowercased().containsDigits {
             return Validation.validationPasswordShouldContainDigits.asError
         }
 
-        if !object.lowercased().containsSpecialSymbols && config.validationOptions.contains(.specialSymbols)  {
+        if config.validationOptions.contains(.specialSymbols) && !object.lowercased().containsSpecialSymbols {
             return Validation.validationPasswordShouldContainLetters.asError
         }
-        if !(object.containsLowercased && object.containsUppercased) && config.validationOptions.contains(.upperAndLowerCased) {
+        if config.validationOptions.contains(.upperAndLowerCased) &&
+            !(object.containsLowercased &&
+            object.containsUppercased) {
             return Validation.validationPasswordShouldContainsLowerAndUpperCases.asError
         }
         
