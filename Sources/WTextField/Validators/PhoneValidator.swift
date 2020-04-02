@@ -38,7 +38,7 @@ struct PhoneValidator: ValidatorProtocol {
                 return Validation.validationPhoneNumberIncorrect.asError
             }
     
-            if phoneBody.count != config.maxLengthWithPlus {
+            if phoneBody.count != config.maxLengthWithPlus - config.plusedCountryCode.count {
                 return Validation.validationPhoneNumberIncorrect.asError
             }
             return nil

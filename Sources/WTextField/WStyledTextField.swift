@@ -67,7 +67,6 @@ open class WStyledTextField: WBaseTextField {
     
     public func changeStyleTo(style: TextFieldStyle, animated: Bool = true) {
         currentStyle = style
-        layoutIfNeeded()
         
         UIView.animate(withDecision: true, animations: { [weak self] in
             self?.handleStyle(style)

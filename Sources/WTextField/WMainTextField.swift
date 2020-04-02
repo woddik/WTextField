@@ -7,6 +7,7 @@
 
 import UIKit
 
+//swiftlint:disable file_length
 open class WMainTextField: WTypedTextField {
     
     public enum Element: CaseIterable, Hashable {
@@ -34,6 +35,7 @@ open class WMainTextField: WTypedTextField {
     
     // MARK: - Error label
     
+    open var errorTopInset: CGFloat { 0 }
     open var errorLabelDistanceToSelf: CGFloat { 0 }
     public var errorLabelHeight: CGFloat? {
         didSet {
@@ -119,8 +121,10 @@ open class WMainTextField: WTypedTextField {
         let height = super.totalHeight
         
         let separatoInFrameInset = separatorTopInset < 0 ? 0 : separatorTopInset
-        var resultHeight = height + separatorViewHeight + separatoInFrameInset + errorLabelDistanceToSelf
-        resultHeight += errorLabelHeight ?? lblError.bounds.height
+        let errorHeight = getErrorLabelHeight()
+        var resultHeight = height + separatorViewHeight + separatoInFrameInset
+        
+        resultHeight += enabledFields.contains(.error) ? errorHeight : 0
         resultHeight += enabledFields.contains(.customPlaceHolder) ? topInsetForCustomPlaceholder : 0
         
         return resultHeight
@@ -165,11 +169,8 @@ open class WMainTextField: WTypedTextField {
     
     open func setText(_ newText: String?, withFormating: Bool = true, animated: Bool = false) {
         super.setText(newText, withFormating: withFormating)
-        guard let newText = newText, let customPlaceholderText = customPlaceholderText else {
-            return
-        }
         
-        if newText.isEmpty && !customPlaceholderText.isEmpty {
+        if text.isEmptyOrNil && !customPlaceholderText.isEmptyOrNil {
             movePlaceholderDown(animated: animated)
         } else {
             movePlaceholderUp(animated: animated)
@@ -212,6 +213,26 @@ open class WMainTextField: WTypedTextField {
 
     }
     
+    override public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        changeStyleTo(style: .highlighted)
+        return super.textFieldShouldBeginEditing(textField)
+    }
+    
+    override public func textFieldDidBeginEditing(_ textField: UITextField) {
+        movePlaceholderUp(animated: true)
+        super.textFieldDidBeginEditing(textField)
+    }
+    
+    override public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+        handleEndEditing()
+        super.textFieldDidEndEditing(textField, reason: reason)
+    }
+    
+    override public func textFieldDidEndEditing(_ textField: UITextField) {
+        handleEndEditing()
+        super.textFieldDidEndEditing(textField)
+    }
+    
     // MARK: - Public methods
     
     /// Choose enabled fields type
@@ -252,6 +273,15 @@ open class WMainTextField: WTypedTextField {
 // MARK: - Private methods
 
 private extension WMainTextField {
+    
+    func handleEndEditing() {
+        layoutIfNeeded()
+        changeStyleTo(style: .notHighlighted)
+
+        if text.isEmptyOrNil && placeholder.isEmptyOrNil {
+            movePlaceholderDown(animated: true)
+        }
+    }
     
     func allEnabledViews() -> [UIView] {
         return enabledFields.compactMap { viewFor(type: $0) }
@@ -365,7 +395,11 @@ private extension WMainTextField {
 //=========================================================
 private extension WMainTextField {
     
-    private func setupErrorLabelWith() {
+    func getErrorLabelHeight() -> CGFloat {
+        return (errorLabelHeight ?? " ".heightFor(font: errorLabelFont)) + errorTopInset + errorLabelDistanceToSelf
+    }
+    
+    func setupErrorLabelWith() {
         addSubview(lblError)
         
         lblError.font = errorLabelFont
@@ -399,3 +433,4 @@ private extension WMainTextField {
                                      viewBorder.heightAnchor.constraint(equalToConstant: separatorViewHeight)])
     }
 }
+//swiftlint:enable file_length

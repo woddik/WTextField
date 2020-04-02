@@ -7,8 +7,15 @@
 
 import UIKit
 
+//swiftlint:disable file_length
 open class WTypedTextField: WStyledTextField {
 
+    // MARK: - Constants
+    
+    private struct Constants {
+        static let actionButtonSize: CGSize = CGSize(width: 22, height: 44)
+    }
+    
     public enum WRightViewMode {
         case none
         case editButton(edit: UIImage, close: UIImage)
@@ -51,14 +58,14 @@ open class WTypedTextField: WStyledTextField {
             case .none:
                 rightViewMode = UITextField.ViewMode.never
             case .editButton(let normal, let selected):
-                let size = CGSize.init(width: 22, height: 44)
-                configureRightButton(size: size, action: #selector(editText), image: normal, selectedImage: selected)
+                configureRightButton(size: Constants.actionButtonSize,
+                                     action: #selector(editText),
+                                     image: normal,
+                                     selectedImage: selected)
             case .clear(let image):
-                let size = CGSize.init(width: 22, height: 44)
-                configureRightButton(size: size, action: #selector(clearText), image: image)
+                configureRightButton(size: Constants.actionButtonSize, action: #selector(clearText), image: image)
             case .custom(let image, let selector):
-                let size = CGSize.init(width: 22, height: 44)
-                configureRightButton(size: size, action: selector, image: image)
+                configureRightButton(size: Constants.actionButtonSize, action: selector, image: image)
             }
         }
     }
@@ -98,8 +105,8 @@ open class WTypedTextField: WStyledTextField {
     }
     
     public override func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
+                                   shouldChangeCharactersIn range: NSRange,
+                                   replacementString string: String) -> Bool {
         if let formatter = formatter {
             formatter.processTextFieldText(textField,
                                            shouldChangeCharactersIn: range,
@@ -171,7 +178,10 @@ private extension WTypedTextField {
             setRightView(actionButton)
             actionButton.isSelected = isSecureTextEntry
             if config.withSecureTogle {
-                actionButton.addTarget(self, action: #selector(showOrHidePassword(_:)), for: .touchUpInside)
+                configureRightButton(size: Constants.actionButtonSize,
+                                     action: #selector(showOrHidePassword(_:)),
+                                     image: config.showPassImage,
+                                     selectedImage: config.hidePassImage)
             }
         case .email:
             keyboardType = .emailAddress
@@ -233,7 +243,7 @@ private extension WTypedTextField {
         }
     }
     
-    func configureRightButton(size: CGSize, action: Selector, image: UIImage, selectedImage: UIImage? = nil) {
+    func configureRightButton(size: CGSize, action: Selector, image: UIImage?, selectedImage: UIImage? = nil) {
         actionButton = UIButton(frame: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         actionButton.addTarget(self, action: action, for: UIControl.Event.touchUpInside)
         actionButton.setImage(image, for: .normal)
@@ -392,3 +402,4 @@ public extension WTypedTextField {
         setSideView(view, position: .left, animated: animated)
     }
 }
+//swiftlint:enable file_length

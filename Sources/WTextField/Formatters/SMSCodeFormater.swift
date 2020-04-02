@@ -11,7 +11,7 @@ struct SMSCodeFormater: FormaterProtocol {
     
     private let maxDigitsCount: Int
     
-    init(_ maxDigits: Int = 6) {
+    init(_ maxDigits: Int = 4) {
         maxDigitsCount = maxDigits
     }
     
